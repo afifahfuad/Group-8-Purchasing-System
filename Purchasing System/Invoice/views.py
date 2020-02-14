@@ -15,6 +15,7 @@ from PurchaseOrder.models import PurchaseOrder,PurchaseOrderItem
 from Invoice.models import Invoice,InvoiceItem
 from django.views.generic import TemplateView
 from django.core.exceptions import ObjectDoesNotExist
+
 from django.forms import formset_factory
 from django.http.request import QueryDict
 from decimal import Decimal
@@ -40,26 +41,29 @@ def fillinginvoice(request):
     context = {}
     pur_id = request.GET['pur_id']
     inv_id = random.randint(1000000,9999999)
+    user_id = request.user.id
+    staff = Person.objects.get(user_id = user_id)
+
     try: 
         purchase_orders = PurchaseOrder.objects.get(purchase_order_id = pur_id)
         item_list = PurchaseOrderItem.objects.filter(purchase_order_id = pur_id)
         context = {
                 'title': 'Invoice Form',
                 'invoice_id': 'INV' + str(inv_id),
-                'purchase_order_id': inv_id, 
-                'staff_id' : purchase_orders.person_id.person_id,
+                'purchase_order_id': pur_id, 
+                'staff_id' : staff.person_id,
                 'vendor_id': purchase_orders.vendor_id.vendor_id,
                 'rows':item_list
             }
-
         responsesItems = render(request,'Invoice/invoiceform.html',context).content
         return render(request,'Invoice/invoiceform.html',context)
 
-    except Invoice.DoesNotExist:
+    except PurchaseOrder.DoesNotExist:
 
-        context = { 'error': 'The invoice id is invalid !',
+        context = { 'error': 'The Purchase Order ID is invalid ! Please enter correctly.',
                     'title': 'Invoice Form'
             }
+
         return render(request,'Invoice/invoiceform.html',context)
 
 def invoiceconfirmation(request):
