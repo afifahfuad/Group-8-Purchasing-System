@@ -5,6 +5,7 @@ from PurchaseOrder.models import PurchaseOrder,PurchaseOrderItem
 from decimal import Decimal
 
 # Create your models here.
+
 class Invoice(models.Model):
     invoice_id = models.CharField(primary_key= True, max_length=10)
     time_created = models.DateTimeField()
